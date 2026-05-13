@@ -1,0 +1,27 @@
+import Link from "next/link";
+import Image from "next/image";
+import { ReactNode } from "react";
+
+const Layout = async ({ children }: { children: ReactNode }) => {
+  return (
+    <div className="root-layout">
+      <nav className="flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2">
+          <Image src="/logo.svg" alt="MockMate Logo" width={38} height={32} />
+          <h2 className="text-primary-100">PrepWise</h2>
+        </Link>
+
+        <Link
+          href="/sign-in"
+          className="rounded-full bg-dark-200 px-5 py-2 text-sm font-bold text-primary-200"
+        >
+          Sign out
+        </Link>
+      </nav>
+
+      {children}
+    </div>
+  );
+};
+
+export default Layout;
