@@ -7,14 +7,31 @@ function initFirebaseAdmin() {
   const apps = getApps();
 
   if (!apps.length) {
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        // Replace newlines in the private key
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-      }),
-    });
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+    // Only initialize if all required env vars are present
+    if (projectId && clientEmail && privateKey) {
+      initializeApp({
+        credential: cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
+      });
+    } else {
+      // During build time or when env vars are missing, initialize with a placeholder
+      // that will be overridden at runtime
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          "Firebase Admin SDK: Missing environment variables (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY). " +
+          "Firebase Admin features will not work until these are configured."
+        );
+      }
+      // Return empty stubs for build compatibility
+      return { auth: null as any, db: null as any };
+    }
   }
 
   return {
